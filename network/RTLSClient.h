@@ -18,6 +18,10 @@
 #include "SerialConnection.h"
 #include "trilateration.h"
 #include <stdint.h>
+// ******************** S.Q.U.A.D. coding ********************
+#include <QDomDocument>
+// ********************* S.Q.U.A.D. end **********************
+
 
 class QFile;
 class DataAnchor;
@@ -121,6 +125,10 @@ public:
     void closeLogFile(void);
     const QString &getLogFilePath();
 
+    // ******************** S.Q.U.A.D. coding ********************
+    QString saveMasterConfigFile();
+    void loadMasterConfigFile(QString);
+    // ********************* S.Q.U.A.D. end **********************
 
 signals:
     void anchPos(quint64 anchorId, double x, double y, double z,bool, bool);

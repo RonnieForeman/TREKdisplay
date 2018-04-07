@@ -18,6 +18,10 @@
 #include <QLabel>
 #include "serialconnection.h"
 
+// ******************** S.Q.U.A.D. coding ********************
+#include <QFileDialog>
+// ********************* S.Q.U.A.D. end **********************
+
 namespace Ui {
 class MainWindow;
 }
@@ -71,6 +75,12 @@ protected slots:
 
     void loadSettings();
     void saveSettings();
+
+    // ******************** S.Q.U.A.D. coding ********************
+    QString saveMasterConfigFile();
+    void loadFromFile();
+    void saveToFile();
+    // ********************* S.Q.U.A.D. end **********************
 
     void onAboutAction();
     void onMiniMapView();

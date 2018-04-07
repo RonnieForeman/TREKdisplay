@@ -202,6 +202,7 @@ void GraphicsWidget::loadConfigFile(QString filename)
     }
 
     file.close();
+    file.deleteLater();
 
     emit setTagHistory(_historyLength);
 }
@@ -266,6 +267,91 @@ void GraphicsWidget::saveConfigFile(QString filename)
 
     qDebug() << doc.toString();
 }
+
+// ******************** S.Q.U.A.D. coding ********************
+QString GraphicsWidget::saveMasterConfigFile()
+{
+    QDomDocument doc;
+
+    QDomElement cn = doc.createElement( "tag_cfg" );
+    cn.setAttribute("size", QString::number(_tagSize));
+    cn.setAttribute("history", QString::number(_historyLength));
+    doc.appendChild(cn);
+
+    //update the map
+    QMap<quint64, QString>::iterator i = _tagLabels.begin();
+
+    while (i != _tagLabels.end())
+    {
+        doc.appendChild( TagToNode(doc, i.key(), i.value()) );
+
+        i++;
+    }
+
+    QString line = doc.toString();
+
+    qDebug() << doc.toString();
+    return line;
+}
+
+void GraphicsWidget::loadMasterConfigFile(QString filename)
+{
+    QFile file(filename);
+
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug(qPrintable(QString("Error: Cannot read file %1 %2").arg(filename).arg(file.errorString())));
+        return;
+    }
+
+    QDomDocument doc;
+    QString error;
+    int errorLine;
+    int errorColumn;
+
+    if(doc.setContent(&file, false, &error, &errorLine, &errorColumn))
+    {
+        qDebug() << "file error !!!" << error << errorLine << errorColumn;
+
+        emit setTagHistory(_historyLength);
+    }
+
+    QDomElement config = doc.documentElement();
+
+    //if( config.tagName() == "config" )
+    {
+//        QDomNodeList nodeList = config.childNodes();
+//        int nodeListSize = nodeList.size();
+
+//        for(int c = 0; c < nodeListSize; c++)
+//        {
+        QDomNode n = config.firstChild();
+        while( !n.isNull() )
+        {
+            QDomElement e = n.toElement();
+            if( !e.isNull() )
+            {
+                if( e.tagName() == "tag_cfg" )
+                {
+                    _tagSize = (e.attribute( "size", "" )).toDouble();
+                    _historyLength = (e.attribute( "history", "" )).toInt();
+                }
+                else
+                if( e.tagName() == "tag" )
+                {
+                    bool ok;
+                    quint64 id = (e.attribute( "ID", "" )).toULongLong(&ok, 16);
+                    QString label = (e.attribute( "label", "" ));
+
+                    _tagLabels.insert(id, label);
+                }
+            }
+
+            n = n.nextSibling();
+        }
+    }
+}
+// ********************* S.Q.U.A.D. end **********************
 
 void GraphicsWidget::clearTags(void)
 {
@@ -1691,5 +1777,4 @@ void GraphicsWidget::anchTableEditing(bool enable)
             ui->anchorTable->item(i,ColumnY)->setFlags(flags | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
         }
     }
-
 }

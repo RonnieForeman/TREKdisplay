@@ -105,7 +105,7 @@ void ViewSettingsWidget::dropPenPushButtonPressed()
 {
     tool = new SetAnchorTool(this);
     QObject::connect(tool, SIGNAL(minimapClicked()), this, SLOT(viewUpdateAnchorXY()));
-    QObject::connect(this, SIGNAL(deleteTool()), tool, SLOT(deleteLater()));
+    QObject::connect(this, SIGNAL(deleteSelectAnchorTool()), tool, SLOT(deleteLater()));
     RTLSDisplayApplication::graphicsView()->setTool(tool);
 }
 
@@ -118,7 +118,7 @@ void ViewSettingsWidget::viewUpdateAnchorXY()
     RTLSDisplay->updateAnchorXY(m_iAnchor, 1, xPosition);
     RTLSDisplay->updateAnchorXY(m_iAnchor, 2, yPosition);
 
-    emit deleteTool();
+    emit deleteSetAnchorTool();
 }
 // ********************* S.Q.U.A.D. end **********************
 
@@ -225,6 +225,9 @@ void ViewSettingsWidget::floorplanOpenClicked()
     {
        RTLSDisplayApplication::viewSettings()->floorplanShow(false);
        RTLSDisplayApplication::viewSettings()->clearSettings();
+       // ******************** S.Q.U.A.D. coding ********************
+       RTLSDisplayApplication::viewSettings()->setFloorplanPath("");
+       // ********************* S.Q.U.A.D. end **********************
        _floorplanOpen = false;
        ui->floorplanOpen_pb->setText("Open");
        ui->floorplanFlipX_cb->setChecked(false);

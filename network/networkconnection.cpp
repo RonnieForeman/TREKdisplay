@@ -15,8 +15,8 @@ void NetworkConnection::initSocket()
     // to bind to an address and port using bind()
     // bool QAbstractSocket::bind(const QHostAddress & address,
     //     quint16 port = 0, BindMode mode = DefaultForPlatform)
-    //_socket->bind(QHostAddress::Broadcast, 45454);
-    _socket->bind(QHostAddress::LocalHost, 45454);
+    //_socket->bind(QHostAddress::Broadcast, 51515);
+    _socket->bind(QHostAddress::LocalHost, 51515);
 
     connect(_socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
@@ -55,7 +55,7 @@ void NetworkConnection::tagPos(quint64 tagId, double x, double y, double z)
    // ba.append(" ");
    // ba.append(QByteArray::number(sqrt(x*x + y*y + z*z)));
 
-    _socket->writeDatagram(ba,QHostAddress::LocalHost, 45454);
+    _socket->writeDatagram(ba,QHostAddress::LocalHost, 51515);
 }
 
 void NetworkConnection::anchPos(quint64 anchId, double x, double y, double z, bool show, bool updatetable)
@@ -75,7 +75,7 @@ void NetworkConnection::anchPos(quint64 anchId, double x, double y, double z, bo
     ba.append(QByteArray::number(z));
    // ba.append(" ");
    // ba.append(QByteArray::number(sqrt(x*x + y*y + z*z)));
-    _socket->writeDatagram(ba,QHostAddress::LocalHost,45454);
+    _socket->writeDatagram(ba,QHostAddress::LocalHost,51515);
 
     //qDebug() << "ba" << ba;
 

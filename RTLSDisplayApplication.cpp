@@ -86,7 +86,7 @@ RTLSDisplayApplication::RTLSDisplayApplication(int &argc, char **argv) : QApplic
     QObject::connect(this, SIGNAL(updateAnchorXYsignal(int, int, double)), _client, SLOT(updateAnchorXYZ(int, int, double)));
     QObject::connect(this, SIGNAL(updateAnchorXYsignal(int, int, double)), _client, SLOT(updateAnchorPositions()));
 
-    QObject::connect(_client, SIGNAL(anchPos(quint64,double,double,double,bool,bool)), _networkConnection, SLOT(anchPos(quint64,double,double,double,bool, bool)));   //added network connection
+    //QObject::connect(_client, SIGNAL(anchPos(quint64,double,double,double,bool,bool)), _networkConnection, SLOT(anchPos(quint64,double,double,double,bool, bool)));   //added network connection
     QObject::connect(_client, SIGNAL(tagPos(quint64,double,double,double)), _networkConnection, SLOT(tagPos(quint64,double,double,double)));                          //added network connection
     // ********************* S.Q.U.A.D. end **********************
 

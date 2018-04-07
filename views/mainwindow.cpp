@@ -65,6 +65,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(RTLSDisplayApplication::serialConnection(), SIGNAL(connectionStateChanged(SerialConnection::ConnectionState)),
                      this, SLOT(connectionStateChanged(SerialConnection::ConnectionState)));
 
+    // ******************** S.Q.U.A.D. coding ********************
+    QObject::connect(ui->actionSave_File, SIGNAL(triggered()), this, SLOT(saveToFile()));
+    QObject::connect(ui->actionLoad_File, SIGNAL(triggered()), this, SLOT(loadFromFile()));
+    // ********************* S.Q.U.A.D. end **********************
+
     RTLSDisplayApplication::connectReady(this, "onReady()");
 }
 
@@ -74,6 +79,8 @@ void MainWindow::onReady()
     QObject::connect(graphicsWidget(), SIGNAL(setTagHistory(int)), viewSettingsWidget(), SLOT(setTagHistory(int)));
 
     QObject::connect(viewSettingsWidget(), SIGNAL(saveViewSettings(void)), this, SLOT(saveViewConfigSettings(void)));
+
+
 
     loadSettings();
 
@@ -340,14 +347,7 @@ void MainWindow::saveConfigFile(QString filename, QString cfg)
 {
     QFile file(filename);
 
-    /*if (!file.open(QFile::ReadWrite | QFile::Text))
-    {
-        qDebug(qPrintable(QString("Error: Cannot read file %1 %2").arg(filename).arg(file.errorString())));
-        return;
-    }*/
-
     QDomDocument doc;
-    //doc.setContent(&file, false);
 
     //save the graphical information
     QDomElement info = doc.createElement("config");
@@ -355,35 +355,23 @@ void MainWindow::saveConfigFile(QString filename, QString cfg)
 
     qDebug() << info.tagName() ;
 
-    if(cfg == "view_cfg")
-    {
-        QDomElement cn = doc.createElement( "view_cfg" );
+    QDomElement cn = doc.createElement( "view_cfg" );
 
-        cn.setAttribute("gridW",  QString::number(RTLSDisplayApplication::viewSettings()->gridWidth(), 'g', 3));
-        cn.setAttribute("gridH",  QString::number(RTLSDisplayApplication::viewSettings()->gridHeight(), 'g', 3));
-        cn.setAttribute("gridS",  QString::number((RTLSDisplayApplication::viewSettings()->gridShow() == true) ? 1 : 0));
-        cn.setAttribute("originS",  QString::number((RTLSDisplayApplication::viewSettings()->originShow() == true) ? 1 : 0));
-        cn.setAttribute("saveFP",  QString::number((RTLSDisplayApplication::viewSettings()->floorplanSave() == true) ? 1 : 0));
+    cn.setAttribute("gridW",  QString::number(RTLSDisplayApplication::viewSettings()->gridWidth(), 'g', 3));
+    cn.setAttribute("gridH",  QString::number(RTLSDisplayApplication::viewSettings()->gridHeight(), 'g', 3));
+    cn.setAttribute("gridS",  QString::number((RTLSDisplayApplication::viewSettings()->gridShow() == true) ? 1 : 0));
+    cn.setAttribute("originS",  QString::number((RTLSDisplayApplication::viewSettings()->originShow() == true) ? 1 : 0));
+    cn.setAttribute("saveFP",  QString::number((RTLSDisplayApplication::viewSettings()->floorplanSave() == true) ? 1 : 0));
 
-        if(RTLSDisplayApplication::viewSettings()->floorplanSave()) //we want to save the floor plan...
-        {
-            cn.setAttribute("flipX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanFlipX(), 10));
-            cn.setAttribute("flipY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanFlipY(), 10));
-            cn.setAttribute("scaleX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanXScale(),'g', 3));
-            cn.setAttribute("scaleY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanYScale(), 'g', 3));
-            cn.setAttribute("offsetX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanXOffset(), 'g', 3));
-            cn.setAttribute("offsetY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanYOffset(), 'g', 3));
-            cn.setAttribute("fplan", RTLSDisplayApplication::viewSettings()->getFloorplanPath());
-        }
-        else
-        {
+    cn.setAttribute("flipX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanFlipX(), 10));
+    cn.setAttribute("flipY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanFlipY(), 10));
+    cn.setAttribute("scaleX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanXScale(),'g', 3));
+    cn.setAttribute("scaleY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanYScale(), 'g', 3));
+    cn.setAttribute("offsetX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanXOffset(), 'g', 3));
+    cn.setAttribute("offsetY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanYOffset(), 'g', 3));
+    cn.setAttribute("fplan", RTLSDisplayApplication::viewSettings()->getFloorplanPath());
 
-        }
-        info.appendChild( cn );
-
-    }
-
-    //file.close(); //close the file and overwrite with new info
+    info.appendChild( cn );
 
     file.open(QIODevice::WriteOnly | QIODevice::Text);
 
@@ -396,6 +384,83 @@ void MainWindow::saveConfigFile(QString filename, QString cfg)
     file.close();
 }
 
+// ******************** S.Q.U.A.D. coding ********************
+QString MainWindow::saveMasterConfigFile()
+{
+    QDomDocument doc;
+
+    QDomElement cn = doc.createElement( "view_cfg" );
+
+    cn.setAttribute("gridW",  QString::number(RTLSDisplayApplication::viewSettings()->gridWidth(), 'g', 3));
+    cn.setAttribute("gridH",  QString::number(RTLSDisplayApplication::viewSettings()->gridHeight(), 'g', 3));
+    cn.setAttribute("gridS",  QString::number((RTLSDisplayApplication::viewSettings()->gridShow() == true) ? 1 : 0));
+    cn.setAttribute("originS",  QString::number((RTLSDisplayApplication::viewSettings()->originShow() == true) ? 1 : 0));
+    cn.setAttribute("saveFP",  QString::number((RTLSDisplayApplication::viewSettings()->floorplanSave() == true) ? 1 : 0));
+
+    cn.setAttribute("flipX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanFlipX(), 10));
+    cn.setAttribute("flipY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanFlipY(), 10));
+    cn.setAttribute("scaleX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanXScale(),'g', 3));
+    cn.setAttribute("scaleY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanYScale(), 'g', 3));
+    cn.setAttribute("offsetX",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanXOffset(), 'g', 3));
+    cn.setAttribute("offsetY",  QString::number(RTLSDisplayApplication::viewSettings()->floorplanYOffset(), 'g', 3));
+    cn.setAttribute("fplan", RTLSDisplayApplication::viewSettings()->getFloorplanPath());
+
+    doc.appendChild( cn );
+
+    qDebug() << doc.toString();
+
+    QString line = doc.toString();
+    return line;
+}
+
+void MainWindow::saveToFile()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+           tr("Save File"), "",
+           tr("File (*.xml);;All Files (*)"));
+
+    QString vf = saveMasterConfigFile();
+    QString tf = graphicsWidget()->saveMasterConfigFile();
+    QString af = RTLSDisplayApplication::instance()->client()->saveMasterConfigFile();
+
+    QFile file(fileName);
+
+    QDomDocument doc;
+
+    //save the graphical information
+    QDomElement info = doc.createElement("config");
+    doc.appendChild(info);
+
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+
+    QTextStream ts( &file );
+    //ts << doc.toString();
+    ts << "<config>\n" << vf << tf << af << "</config>";
+
+    qDebug() << doc.toString();
+
+    file.close();
+}
+
+void MainWindow::loadFromFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+            tr("Load File"), "",
+            tr("Load (*.xml);;All Files (*)"));
+
+    RTLSDisplayApplication::viewSettings()->clearSettings();
+    RTLSDisplayApplication::viewSettings()->floorplanShow(false);
+    RTLSDisplayApplication::viewSettings()->setFloorplanPath("");
+
+    QString viewFileName = fileName + "view_config.xml";
+    QString tagFileName = fileName + "tag_config.xml";
+    QString ancFileName = fileName + "anc_config.xml";
+
+    loadConfigFile(fileName);
+    graphicsWidget()->loadConfigFile(fileName);
+    RTLSDisplayApplication::instance()->client()->loadConfigFile(fileName);
+}
+// ********************* S.Q.U.A.D. end **********************
 
 void MainWindow::statusBarMessage(QString status)
 {

@@ -1187,6 +1187,119 @@ void RTLSClient::saveConfigFile(QString filename)
     qDebug() << doc.toString();
 }
 
+// ******************** S.Q.U.A.D. coding ********************
+QString RTLSClient::saveMasterConfigFile()
+{
+    int i = 0;
+
+    QDomDocument doc;
+
+    while (i < MAX_NUM_ANCS)
+    {
+        doc.appendChild( AnchorToNode(doc, &_ancArray[i]) );
+
+        i++;
+    }
+
+    QString line = doc.toString();
+    return line;
+}
+
+void RTLSClient::loadMasterConfigFile(QString filename)
+{
+    QFile file(filename);
+
+    double x[4] = {0.0, 5.0, 0.0, 5.0};
+    double y[4] = {0.0, 0.0, 5.0, 5.0};
+
+    for(int i=0; i<MAX_NUM_ANCS; i++)
+    {
+        _ancArray[i].id = 0xff;
+        _ancArray[i].label = "";
+        _ancArray[i].x = x[i];  //default x
+        _ancArray[i].y = y[i];  //default y
+        _ancArray[i].z = 3.00;  //default z
+
+        for(int j = 0; j<MAX_NUM_TAGS; j++)
+        {
+            _ancArray[i].tagRangeCorection[j] =  0;
+        }
+    }
+
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug(qPrintable(QString("Error: Cannot read file %1 %2").arg(filename).arg(file.errorString())));
+        addMissingAnchors();
+        return;
+    }
+
+    QDomDocument doc;
+    QString error;
+    int errorLine;
+    int errorColumn;
+
+    if(doc.setContent(&file, false, &error, &errorLine, &errorColumn))
+    {
+        qDebug() << "file error !!!" << error << errorLine << errorColumn;
+    }
+
+    QDomElement config = doc.documentElement();
+
+    //if( config.tagName() == "config" )
+    {
+        QDomNode n = config.firstChild();
+        while( !n.isNull() )
+        {
+            QDomElement e = n.toElement();
+            if( !e.isNull() )
+            {
+                if( e.tagName() == "anc" )
+                {
+                    bool ok;
+                    int id = (e.attribute( "ID", "" )).toInt(&ok);
+
+                    id &= 0x3;
+
+                    if(ok)
+                    {
+                        _ancArray[id].id = id & 0xf;
+                        _ancArray[id].label = (e.attribute( "label", "" ));
+                        _ancArray[id].x = (e.attribute("x", "0.0")).toDouble(&ok);
+                        _ancArray[id].y = (e.attribute("y", "0.0")).toDouble(&ok);
+                        _ancArray[id].z = (e.attribute("z", "0.0")).toDouble(&ok);
+
+                        //tag distance correction (in cm)
+                        _ancArray[id].tagRangeCorection[0] = (e.attribute("t0", "0")).toDouble(&ok);
+                        _ancArray[id].tagRangeCorection[1] = (e.attribute("t1", "0")).toDouble(&ok);
+                        _ancArray[id].tagRangeCorection[2] = (e.attribute("t2", "0")).toDouble(&ok);
+                        _ancArray[id].tagRangeCorection[3] = (e.attribute("t3", "0")).toDouble(&ok);
+                        _ancArray[id].tagRangeCorection[4] = (e.attribute("t4", "0")).toDouble(&ok);
+                        _ancArray[id].tagRangeCorection[5] = (e.attribute("t5", "0")).toDouble(&ok);
+                        _ancArray[id].tagRangeCorection[6] = (e.attribute("t6", "0")).toDouble(&ok);
+                        _ancArray[id].tagRangeCorection[7] = (e.attribute("t7", "0")).toDouble(&ok);
+
+                        if(id == 3) //hide anchor 4 by default
+                        {
+                            emit anchPos(id, _ancArray[id].x, _ancArray[id].y, _ancArray[id].z, false, false);
+                        }
+                        else
+                        {
+                            emit anchPos(id, _ancArray[id].x, _ancArray[id].y, _ancArray[id].z, true, false);
+                        }
+                    }
+                }
+            }
+
+            n = n.nextSibling();
+        }
+
+    }
+
+    file.close();
+
+    addMissingAnchors();
+}
+// ********************* S.Q.U.A.D. end **********************
 
 void RTLSClient::updateAnchorXYZ(int id, int x, double value)
 {

@@ -40,7 +40,7 @@ signals:
     void saveViewSettings(void);
     // ******************** S.Q.U.A.D. coding ********************
     void updateAnchorXY(int id, int x, double value);
-    void deleteTool();
+    void deleteSetAnchorTool();
     // ********************* S.Q.U.A.D. end **********************
 
 protected slots:

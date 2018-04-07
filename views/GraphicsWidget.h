@@ -149,6 +149,12 @@ public slots:
     void setAlarm(bool in, bool out);
 
     void ancRanges(int a01, int a02, int a12);
+
+    // ******************** S.Q.U.A.D. coding ********************
+    QString saveMasterConfigFile();
+    void loadMasterConfigFile(QString);
+    // ********************* S.Q.U.A.D. end **********************
+
 protected slots:
     void onReady();
 

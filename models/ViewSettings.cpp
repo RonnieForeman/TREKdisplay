@@ -204,7 +204,14 @@ void ViewSettings::setFloorplanYOffset(double arg)
 void ViewSettings::setFloorplanPixmap(const QPixmap &arg)
 {
     _floorplanPixmap = arg;
-    floorplanFlipX(true);
+    // ******************** S.Q.U.A.D. coding ********************
+    // Commented out this next line of code.
+    //
+    // floorplanFlipX(true);
+    //
+    // We didn't want to flip over the X axis every time we loaded
+    // a pixmap.
+    // ********************* S.Q.U.A.D. end **********************
     emit floorplanPixmapChanged();
 }
 
@@ -215,7 +222,7 @@ void ViewSettings::setFloorplanPath(const QString &arg)
 
 void ViewSettings::setFloorplanPathN(void)
 {
-    if (!_floorplanPath.isNull())
+    if (!_floorplanPath.isNull() && (_floorplanPath != "")) //S.Q.U.A.D. added after &&
     {
         _floorplanShow = true;
         emit setFloorPlanPic();
@@ -257,6 +264,10 @@ void ViewSettings::clearSettings(void)
     _floorplanYOffset = 0;
     _floorplanFlipX = false;
     _floorplanFlipY = false;
+
+    // ******************** S.Q.U.A.D. coding ********************
+    setFloorplanPath(NULL);
+    // ********************* S.Q.U.A.D. end **********************
 }
 
 void ViewSettings::floorplanShow(bool show)
