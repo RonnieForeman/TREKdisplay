@@ -54,6 +54,10 @@ void ConnectionWidget::onReady()
 
 ConnectionWidget::~ConnectionWidget()
 {
+    // ******************** S.Q.U.A.D. coding ********************
+    RTLSDisplayApplication::serialConnection()->closeConnection();
+    // ********************* S.Q.U.A.D. end **********************
+
     delete ui;
 }
 

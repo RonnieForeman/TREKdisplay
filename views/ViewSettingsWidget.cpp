@@ -105,7 +105,7 @@ void ViewSettingsWidget::dropPenPushButtonPressed()
 {
     tool = new SetAnchorTool(this);
     QObject::connect(tool, SIGNAL(minimapClicked()), this, SLOT(viewUpdateAnchorXY()));
-    QObject::connect(this, SIGNAL(deleteSelectAnchorTool()), tool, SLOT(deleteLater()));
+    QObject::connect(this, SIGNAL(deleteSetAnchorTool()), tool, SLOT(deleteLater()));
     RTLSDisplayApplication::graphicsView()->setTool(tool);
 }
 

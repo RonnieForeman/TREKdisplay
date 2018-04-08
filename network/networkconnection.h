@@ -29,8 +29,9 @@ public slots:
 private:
     void initSocket();
     QUdpSocket* _socket;
-    ConnectionType _connectionType;
-    quint16 _portNo;
+//    ConnectionType _connectionType;
+//    quint16 _portNo;
+    char buffer[128];
 };
 
 #endif // NETWORKCONNECTION_H

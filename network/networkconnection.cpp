@@ -1,5 +1,8 @@
 
 #include "networkconnection.h"
+#include <qdebug.h>
+
+#define PORT (51515)
 
 NetworkConnection::NetworkConnection(QObject* parent) : QObject(parent)
 {
@@ -15,8 +18,16 @@ void NetworkConnection::initSocket()
     // to bind to an address and port using bind()
     // bool QAbstractSocket::bind(const QHostAddress & address,
     //     quint16 port = 0, BindMode mode = DefaultForPlatform)
-    //_socket->bind(QHostAddress::Broadcast, 51515);
-    _socket->bind(QHostAddress::LocalHost, 51515);
+    //_socket->bind(QHostAddress::Broadcast, 45454);
+    if(_socket->bind(QHostAddress::LocalHost, PORT))
+    {
+        qDebug() << "Connected to local host at port number " << PORT;
+    }
+    else
+    {
+        qDebug() << "Unable to connect.";
+    }
+    _socket->connectToHost(QHostAddress::LocalHost, PORT);
 
     connect(_socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
@@ -25,7 +36,7 @@ void NetworkConnection::initSocket()
 //        case ConnectionType::UDP:
 //        {
 //            _socket = new QUdpSocket();
-//            _portNo = 45454;
+//            _portNo = 51515;
 //            break;
 //        }
 //        case ConnectionType::TCP:
@@ -41,42 +52,100 @@ void NetworkConnection::initSocket()
 void NetworkConnection::tagPos(quint64 tagId, double x, double y, double z)
 {
     //qDebug() << "Send Tag Pos \n";
+    int name = tagId;
+    int nameSize = sizeof(int);
+    int doubleSize = sizeof(double);
+
+    char *nameByteArray = (char*)&name;
+    char *xByteArray = (char*)&x;
+    char *yByteArray = (char*)&y;
+    char *zByteArray = (char*)&z;
 
    QByteArray ba;
-    ba.append("T");
-    ba.append(" ");
-    ba.append(QByteArray::number(tagId));
-    ba.append(" ");
-    ba.append(QByteArray::number(x));
-    ba.append(" ");
-    ba.append(QByteArray::number(y));
-    ba.append(" ");
-    ba.append(QByteArray::number(z));
+
+   for(int c = 0; c < nameSize; c++)
+   {
+       ba.append(nameByteArray[c]);
+   }
+//    ba.append(" ");
+   for(int c = 0; c < doubleSize; c++)
+   {
+       ba.append(xByteArray[c]);
+   }
+//    ba.append(" ");
+   for(int c = 0; c < doubleSize; c++)
+   {
+       ba.append(yByteArray[c]);
+   }
+//    ba.append(" ");
+   for(int c = 0; c < doubleSize; c++)
+   {
+       ba.append(zByteArray[c]);
+   }
+
+//    ba.append("T");
+//    ba.append(" ");
+//    ba.append(QByteArray::number(tagId));
+//    ba.append(" ");
+//    ba.append(QByteArray::number(x));
+//    ba.append(" ");
+//    ba.append(QByteArray::number(y));
+//    ba.append(" ");
+//    ba.append(QByteArray::number(z));
    // ba.append(" ");
    // ba.append(QByteArray::number(sqrt(x*x + y*y + z*z)));
 
-    _socket->writeDatagram(ba,QHostAddress::LocalHost, 51515);
+    _socket->write(ba);
 }
 
 void NetworkConnection::anchPos(quint64 anchId, double x, double y, double z, bool show, bool updatetable)
 {
-   // qDebug() << "Send Anchor Pos\n";
+    //qDebug() << "Send Anchor Pos\n";
+    int name = anchId;
+    int nameSize = sizeof(int);
+    int doubleSize = sizeof(double);
 
+    char *nameByteArray = (char*)&name;
+    char *xByteArray = (char*)&x;
+    char *yByteArray = (char*)&y;
+    char *zByteArray = (char*)&z;
 
     QByteArray ba;
-    ba.append("A");
-    ba.append(" ");
-    ba.append(QByteArray::number(anchId));
-    ba.append(" ");
-    ba.append(QByteArray::number(x));
-    ba.append(" ");
-    ba.append(QByteArray::number(y));
-    ba.append(" ");
-    ba.append(QByteArray::number(z));
+
+    for(int c = 0; c < nameSize; c++)
+    {
+        ba.append(nameByteArray[c]);
+    }
+//    ba.append(" ");
+    for(int c = 0; c < doubleSize; c++)
+    {
+        ba.append(xByteArray[c]);
+    }
+//    ba.append(" ");
+    for(int c = 0; c < doubleSize; c++)
+    {
+        ba.append(yByteArray[c]);
+    }
+//    ba.append(" ");
+    for(int c = 0; c < doubleSize; c++)
+    {
+        ba.append(zByteArray[c]);
+    }
+
+//    ba.append("A");
+//    ba.append(" ");
+//    ba.append(" ");
+//    ba.append(QByteArray::number(anchId));
+//    ba.append(" ");
+//    ba.append(QByteArray::number(x));
+//    ba.append(" ");
+//    ba.append(QByteArray::number(y));
+//    ba.append(" ");
+//    ba.append(QByteArray::number(z));
    // ba.append(" ");
    // ba.append(QByteArray::number(sqrt(x*x + y*y + z*z)));
-    _socket->writeDatagram(ba,QHostAddress::LocalHost,51515);
-
+   // _socket->writeDatagram(ba,QHostAddress::LocalHost,PORT);
+    _socket->write(ba);
     //qDebug() << "ba" << ba;
 
 
@@ -99,6 +168,11 @@ void NetworkConnection::readyRead()
 
     _socket->readDatagram(buffer.data(), buffer.size(),
                          &sender, &senderPort);
+
+//    int num = int(buffer[0]);
+//    double x = double(buffer[4]);
+//    double y = double(buffer[12]);
+//    double z = double(buffer[20]);
 
     qDebug() << "Message from: " << sender.toString();
     qDebug() << "Message port: " << senderPort;

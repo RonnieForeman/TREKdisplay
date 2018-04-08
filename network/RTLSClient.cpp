@@ -573,6 +573,10 @@ void RTLSClient::newData()
 
         if(type == 'c') //if 'c' these reports relate to tag <-> anchor ranges
         {
+            // ******************** S.Q.U.A.D. coding ********************
+            //qDebug() << "T";
+            // ********************* S.Q.U.A.D. end **********************
+
             //check the mask and process the tag - anchor ranges
             for(int k=0; k<MAX_NUM_ANCS; k++)
             {
